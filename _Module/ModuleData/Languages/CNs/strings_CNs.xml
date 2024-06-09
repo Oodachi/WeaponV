@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<base schemaLocation="https://www.w3schools.com/xml ../../../../../../resources/language.xsd" type="string">
+    <tags>
+        <tag language="简体中文"/>
+    </tags>
+    <strings>
+        <string id="WeaponV1" text="武器栏扩展加载成功!"/>
+        <string id="WeaponV2" text="额外武器"/>
+    </strings>
+</base>

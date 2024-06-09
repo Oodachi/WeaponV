@@ -1,0 +1,9 @@
+<InventoryEquippedItemSlot MarginLeft="5"
+                           MarginTop="450"
+                           Parameter.BackgroundBrush="InventoryWeaponSlot"
+                           Parameter.DropTag="Equipment_12"
+                           Parameter.EquipmentIndex="12"
+                           Parameter.HintDataSource="{EquipmentWeapon5SlotHint}"
+                           Parameter.IsRightSide="true"
+                           Parameter.ItemDataSource="{CharacterWeapon5Slot}"
+                           GamepadNavigationIndex="7"/>
