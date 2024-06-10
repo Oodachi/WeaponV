@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<base schemaLocation="https://www.w3schools.com/xml ../../../../../../resources/language.xsd" type="string">
+    <tags>
+        <tag language="Français"/>
+    </tags>
+    <strings>
+        <string id="WeaponV1" text="WeaponV chargé avec succès !"/>
+        <string id="WeaponV2" text="Arme supplémentaire"/>
+    </strings>
+</base>
