@@ -4,6 +4,7 @@ using Bannerlord.UIExtenderEx.Attributes;
 using Bannerlord.UIExtenderEx.Prefabs2;
 using Bannerlord.UIExtenderEx.ViewModels;
 using HarmonyLib;
+using TaleWorlds.CampaignSystem;
 using TaleWorlds.CampaignSystem.Inventory;
 using TaleWorlds.CampaignSystem.ViewModelCollection.Inventory;
 using TaleWorlds.Core;
@@ -42,16 +43,8 @@ public class SpInventoryVMMixin : BaseViewModelMixin<SPInventoryVM> {
 		_setCharacterWeapon5SlotAction = SetCharacterWeapon5Slot;
 		_getCharacterWeapon5SlotAction = GetCharacterWeapon5Slot;
 		
-		var traverse  = Traverse.Create(vm);
-		var equipment = traverse.Method("get_ActiveEquipment").GetValue<Equipment>();
-		var itemSlots = Traverse.Create(equipment).Field<EquipmentElement[]>("_itemSlots").Value;
-		if (itemSlots.Length < 13) {
-			var newItemSlots = new EquipmentElement[13];
-			for (var index = 0; index < itemSlots.Length; ++index) { newItemSlots[index] = new EquipmentElement(equipment[index]); }
-			
-			Traverse.Create(equipment).Field("_itemSlots").SetValue(newItemSlots);
-		}
-		
+		var traverse          = Traverse.Create(vm);
+		var equipment         = traverse.Method("get_ActiveEquipment").GetValue<Equipment>();
 		var itemRosterElement = new ItemRosterElement(equipment.GetEquipmentFromSlot((EquipmentIndex)12), 1);
 		
 		CharacterWeapon5Slot = traverse.Method("InitializeCharacterEquipmentSlot", itemRosterElement, (EquipmentIndex)12).GetValue<SPItemVM>();
@@ -261,11 +254,37 @@ public class EquipmentPatch {
 	// 复制装备的时候保证复制扩展出来的12槽
 	[HarmonyPostfix]
 	[HarmonyPatch(typeof(Equipment), "Clone")]
-	private static void EquipmentClonePostfix(Equipment __instance, ref Equipment __result, bool cloneWithoutWeapons = false) {
+	private static void EquipmentClonePostfix(ref Equipment __instance, ref Equipment __result, bool cloneWithoutWeapons = false) {
 		if (cloneWithoutWeapons) return;
-		var itemSlots = Traverse.Create(__instance).Field<EquipmentElement[]>("_itemSlots").Value;
-		if (itemSlots.Length != 13) return;
 		__result[12] = __instance[12];
+	}
+}
+
+// 旧有存档的槽位扩展出来
+[HarmonyPatch]
+public class HeroPatch {
+	// 英雄战斗设备
+	[HarmonyPostfix]
+	[HarmonyPatch(typeof(Hero), "BattleEquipment", MethodType.Getter)]
+	private static void BattleEquipmentPostfix(Hero __instance, ref Equipment __result) {
+		var itemSlots = Traverse.Create(__result).Field<EquipmentElement[]>("_itemSlots").Value;
+		if (itemSlots.Length >= 13) return;
+		var newItemSlots = new EquipmentElement[13];
+		for (var index = 0; index < itemSlots.Length; ++index) { newItemSlots[index] = new EquipmentElement(__result[index]); }
+		
+		Traverse.Create(__result).Field("_itemSlots").SetValue(newItemSlots);
+	}
+	
+	// 英雄民用设备
+	[HarmonyPostfix]
+	[HarmonyPatch(typeof(Hero), "CivilianEquipment", MethodType.Getter)]
+	private static void CivilianEquipmentPostfix(Hero __instance, ref Equipment __result) {
+		var itemSlots = Traverse.Create(__result).Field<EquipmentElement[]>("_itemSlots").Value;
+		if (itemSlots.Length >= 13) return;
+		var newItemSlots = new EquipmentElement[13];
+		for (var index = 0; index < itemSlots.Length; ++index) { newItemSlots[index] = new EquipmentElement(__result[index]); }
+		
+		Traverse.Create(__result).Field("_itemSlots").SetValue(newItemSlots);
 	}
 }
 
